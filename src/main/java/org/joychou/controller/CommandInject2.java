@@ -41,7 +41,12 @@ public class CommandInject {
 
         String host = request.getHeader("host");
         logger.info(host);
-        String[] cmdList = new String[]{"sh", "-c", "curl " + host};
+        // 使用白名单或其他防护措施，如仅允许合法域名
+        String safeHost = SecurityUtil.hostFilter(host);
+        if (safeHost == null) {
+            throw new IllegalArgumentException("非法或危险的host");
+        }
+        String[] cmdList = new String[]{"sh", "-c", "curl " + safeHost};
         ProcessBuilder builder = new ProcessBuilder(cmdList);
         builder.redirectErrorStream(true);
         Process process = builder.start();
